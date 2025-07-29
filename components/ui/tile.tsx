@@ -12,8 +12,7 @@ const Tile = React.forwardRef<HTMLDivElement, TileProps>(
         ref={ref} 
         className={cn("flex w-auto h-16 bg-white shadow-md m-4", className)}
     >
-        <div className="w-[4px]" style={{ backgroundColor: tileColor }}/>
-        <div className="flex justify-between w-full p-2" {...props} />
+        <div className="flex justify-between w-full p-2 border-l-4" style={{ borderLeftColor: tileColor }} {...props} />
     </div>
 ));
 Tile.displayName = "Tile";
