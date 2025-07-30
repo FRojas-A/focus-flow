@@ -9,7 +9,7 @@ const Modal = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex flex-col rounded-[0.125rem] border bg-card text-card-foreground shadow h-30",
+      "flex flex-col rounded-sm border bg-card text-card-foreground shadow h-30",
       className,
     )}
     {...props}
@@ -30,7 +30,7 @@ const ModalHeader = React.forwardRef<
 >(({ className, academicYear, isCloseable,modalTitle }, ref) => (
     <div
         ref={ref}
-        className={cn("flex justify-between w-full bg-blue-500 p-3 rounded-t-[0.125rem]", className)}
+        className={cn("flex justify-between w-full bg-blue-500 p-3 rounded-t-sm", className)}
     >
         <div className="flex flex-col">
             <div className="text-lg font-semibold ">{modalTitle}</div>
@@ -60,7 +60,7 @@ const ModalFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex justify-end w-full p-3 rounded-b-[0.125rem] border-t", className)}
+        className={cn("flex justify-end w-full p-3 rounded-b-sm border-t", className)}
         {...props}
     />
 ));
