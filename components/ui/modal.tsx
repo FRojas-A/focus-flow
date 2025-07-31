@@ -17,27 +17,15 @@ const Modal = React.forwardRef<
 ));
 Modal.displayName = "Modal";
 
-interface ModalHeaderProps {
-    modalTitle: string;
-    academicYear: string;
-    isCloseable: boolean;
-}
-
 const ModalHeader = React.forwardRef<
   HTMLDivElement,
-  ModalHeaderProps &
   React.HTMLAttributes<HTMLDivElement>
->(({ className, academicYear, isCloseable,modalTitle }, ref) => (
+>(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex justify-between w-full bg-blue-500 p-3 rounded-t-sm", className)}
-    >
-        <div className="flex flex-col">
-            <div className="text-lg font-semibold ">{modalTitle}</div>
-            <div className="text-sm font-medium">{academicYear}</div>
-        </div>
-        {isCloseable && <div>X</div>}
-    </div>
+        className={cn("flex justify-between w-full bg-blue-500 p-6 rounded-t-sm", className)}
+        {...props}
+    />
 ));
 ModalHeader.displayName = "ModalHeader";
 

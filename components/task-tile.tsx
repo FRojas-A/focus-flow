@@ -16,12 +16,12 @@ const TaskTile = React.forwardRef<
 >(({ className, taskName, subject, dueDate, progress, tileColor, ...props }, ref) => (
     <Tile ref={ref} tileColor={tileColor} {...props} className={className}>
         <div className="flex flex-col justify-center w-auto">
-            <div className="text-lg text-black font-semibold">{taskName}</div>
-            <div className="text-sm text-slate-600 font-medium">{subject}</div>
+            <div className="text-xl text-black ">{taskName}</div>
+            <div className="text-sm text-slate-600">{subject}</div>
         </div>
         <div className="flex flex-col justify-center items-end w-fit h-full">
-            <div className="text-sm text-black font-semibold">{dueDate}</div>
-            <div className="text-sm text-slate-600 font-medium">{progress}%</div>
+            <div className="text-sm text-black">{dueDate}</div>
+            <div className="text-sm text-slate-600">{progress}%</div>
         </div>
     </Tile>
     ));
