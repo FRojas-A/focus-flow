@@ -5,47 +5,62 @@ import { Modal, ModalBody, ModalFooter, ModalHeader } from "./ui/modal";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
+import { createClient } from "@/lib/supabase/client";
+import { Database } from "@/database.types";
+import { QueryError } from "@supabase/supabase-js";
 
-interface NewClassFormProps extends React.ComponentPropsWithoutRef<"div"> {
+interface ClassFormProps extends React.ComponentPropsWithoutRef<"div"> {
   mode: "create" | "edit";
   classId?: string; // Only needed for edit mode
 }
 
-export function NewClassForm({
+type ClassRecord = Database["public"]["Tables"]["classes"]["Row"];
+
+export function ClassForm({
     className,
     mode,
     classId,
     ...props
-}: NewClassFormProps) {
+}: ClassFormProps) {
 
+    const supabase = createClient();
     const [subject, setSubject] = useState("");
     const [module, setModule] = useState("");
     const [room, setRoom] = useState("");
     const [building, setBuilding] = useState("");
-    const [teacher, setTeacher] = useState("");
-    // const [success, setSuccess] = useState(false);
-    // const [error, setError] = useState<string | null>(null);
-    // const [isLoading, setIsLoading] = useState(false);
-    
-
-    
-    // class tile
-    // subject/name times days --- teacher
+    const [teacher, setTeacher] = useState(""); 
+    const [error, setError] = useState<string | null>(null)
     
     useEffect(() => {
-        // TODO fetch class data
-        // get class info based on id
-
-    }, [classId, mode])
+        const getData = async () => {
+            try {
+                const { data, error } = await supabase.from('classes').select().single();
+                if (error) throw error
+                const classInfo = data as ClassRecord;
+                setModule(classInfo.module ?? "");
+            } catch(error: unknown) {
+                const errorMessage = error as QueryError;
+                setError(errorMessage.message);
+            }
+        }
+        getData();
+    }, [classId, mode, supabase])
 
   return (
     <div className={className} {...props}>
       <Modal>
-        <ModalHeader modalTitle={mode === "edit" ? "Edit Class" : "New Class"}  isCloseable={false} academicYear="">
-
+        <ModalHeader>
+            <div className="flex-col">
+                <div className="text-lg">{mode === "edit" ? "Edit Class" : "New Class"}</div>
+                <div className="text-sm"></div>
+            </div>
+            <div></div>
         </ModalHeader>
         <ModalBody>
-            <div>
+            <div className="flex w-full">
+                {error}
+            </div>
+            <div className="grid grid-cols-2">
                 <div className="p-3">
                     <Label htmlFor="subject">Subject</Label>
                     <Input

@@ -1,3 +1,4 @@
+import Overview from "@/components/dashboard/overview";
 
 
 export default function DashboardLayout({
@@ -6,7 +7,8 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <main>
+        <main className="h-screen w-screen flex flex-col items-center">
+            <Overview />
             {children}
         </main>
     )

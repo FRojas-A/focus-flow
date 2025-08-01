@@ -23,7 +23,7 @@ const ModalHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex justify-between w-full bg-blue-500 p-6 rounded-t-sm", className)}
+        className={cn("flex justify-between w-full bg-blue-500 p-4 rounded-t-sm", className)}
         {...props}
     />
 ));
@@ -48,7 +48,7 @@ const ModalFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex justify-end w-full p-3 rounded-b-sm border-t", className)}
+        className={cn("flex w-full p-3 rounded-b-sm border-t", className)}
         {...props}
     />
 ));
