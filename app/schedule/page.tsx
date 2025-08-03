@@ -1,15 +1,12 @@
+import YearFormController from "@/components/academic-year/year-form-controller";
 import { Button } from "@/components/ui/button";
-import YearForm from "@/components/year-form";
 
 export default function SchedulePage() {
-
-
-
     return (
         <div className="flex justify-center w-full">
-            <YearForm mode="edit" yearId={2}>
-                <Button>Create New Academic Year</Button>
-            </YearForm>
+            <YearFormController mode="edit" yearId={2} >
+                <Button>New Year</Button>
+            </YearFormController>
         </div>
     )
 }
