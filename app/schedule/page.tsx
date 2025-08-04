@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 export default function SchedulePage() {
     return (
         <div className="flex justify-center w-full">
-            <YearFormController mode="edit" yearId={2} >
+            <YearFormController mode="edit" yearId={31} >
                 <Button>New Year</Button>
             </YearFormController>
         </div>

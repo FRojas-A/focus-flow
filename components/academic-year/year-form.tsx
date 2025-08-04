@@ -3,6 +3,8 @@ import { Label } from "../ui/label";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../ui/modal";
 import { Database } from "@/database.types";
 import TermEditor from "../term-editor";
+import { Input } from "../ui/input";
+import { parseISODate, parseLocalDate } from "@/lib/utils";
 
 type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
 
@@ -41,7 +43,7 @@ export default function YearForm({
 }: YearFormProps) {
     
     return (
-        <Modal>
+        <Modal className="w-[30rem]">
             <form onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
@@ -56,13 +58,30 @@ export default function YearForm({
                     <div className="grid grid-cols-2 gap-10">
                         <div className="flex flex-col gap-1">
                             <Label htmlFor="startDate">Start Date</Label>
-                            <input aria-label="Date" type="date" id="startDate" className="border" defaultValue={yearStart} onChange={(e) => setYearStart(e.target.value)} />
+                            <Input 
+                            aria-label="Date" 
+                            type="date" 
+                            id="startDate" 
+                            className="border" 
+                            defaultValue={parseISODate(yearStart)} 
+                            onChange={(e) => {
+                                const date = parseLocalDate(e.target.value)
+                                setYearStart(date.toISOString())
+                            }} />
                         </div>
                         <div className="flex flex-col gap-1">
                             <Label htmlFor="endDate">End Date</Label>
-                            <input aria-label="Date" type="date" id="endDate" className="border" defaultValue={yearEnd} onChange={(e) => setYearEnd(e.target.value)} />
+                            <Input 
+                            aria-label="Date" 
+                            type="date" 
+                            id="endDate" 
+                            className="border" 
+                            defaultValue={parseISODate(yearEnd)} 
+                            onChange={(e) => {
+                                const date = parseLocalDate(e.target.value)
+                                setYearEnd(date.toISOString())
+                            }} />
                         </div>
-                        <div>{yearStart}-{yearEnd}</div>
                     </div>
                     <div className="">
                         <h2 className="text-lg">Terms</h2>
@@ -73,8 +92,8 @@ export default function YearForm({
                                 setModifiedTerms={setModifiedTerms}
                                 yearId={yearId} 
                                 mode={mode} 
-                                yearStart={yearStart} 
-                                yearEnd={yearEnd}
+                                yearStart={parseISODate(yearStart)} 
+                                yearEnd={parseISODate(yearEnd)}
                                 setError={setError} 
                             />
                         </div>
