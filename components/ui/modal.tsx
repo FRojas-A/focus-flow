@@ -9,7 +9,7 @@ const Modal = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex flex-col rounded-sm border bg-card text-card-foreground shadow h-30",
+      "flex flex-col rounded-sm bg-card text-card-foreground shadow h-30",
       className,
     )}
     {...props}

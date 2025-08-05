@@ -9,7 +9,7 @@ import { parseISODate, parseLocalDate } from "@/lib/utils";
 type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
 
 interface YearFormProps extends React.ComponentPropsWithoutRef<"div"> {
-    yearId?: number;
+    yearId?: number | null;
     mode: "edit" | "new";
     error: string | null;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
@@ -43,7 +43,7 @@ export default function YearForm({
 }: YearFormProps) {
     
     return (
-        <Modal className="w-[30rem]">
+        <Modal className="w-[30rem] z-20">
             <form onSubmit={(e) => {
                 e.preventDefault();
                 handleSubmit();
@@ -51,10 +51,12 @@ export default function YearForm({
                 <ModalHeader>
                     <span className="text-lg">{mode === "edit" ? "Edit" : "New"}{" "}Academic Year</span>
                 </ModalHeader>
+                    {error && (
+                        <div className="bg-red-400 border border-red-600 w-full h-16 border-4 flex items-center px-6">
+                            {error}
+                        </div>
+                    )}
                 <ModalBody className="flex flex-col p-4 gap-4">
-                    <div>
-                        {error}
-                    </div>
                     <div className="grid grid-cols-2 gap-10">
                         <div className="flex flex-col gap-1">
                             <Label htmlFor="startDate">Start Date</Label>
@@ -99,7 +101,12 @@ export default function YearForm({
                         </div>
                     </div>
                 </ModalBody>
-                <ModalFooter className="justify-end">
+                <ModalFooter className="justify-between">
+                    <div>
+                        {mode === "edit" && (
+                            <Button type="button" size={"sm"} variant={"destructive"}>Delete</Button>
+                        )}
+                    </div>
                     {/* TODO: add additional button to delete */}
                     <div className="flex gap-2">
                         <Button onClick={() => setToggleModal(false)} type="button" size={"sm"} variant={"outline"}>Cancel</Button>

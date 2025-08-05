@@ -8,7 +8,7 @@ import YearForm from "./year-form";
 type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
 
 interface YearFormControllerProps extends React.ComponentPropsWithoutRef<"div"> {
-    yearId?: number;
+    yearId?: number | null;
     mode: "edit" | "new";
     renderInPortal?: boolean;
     children: React.ReactNode;
@@ -71,8 +71,12 @@ export default function YearFormController({
             const result = await res.json();
             if (!result.success) throw new Error(result.error);
             setSuccess(true);
-        } catch (error) {
-            console.log(error);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("Unknown error. Could not save academic year.")
+            }
         } finally {
             setIsLoading(false);
         }
@@ -97,7 +101,8 @@ export default function YearFormController({
 
     return (
         <div>
-            <div onClick={() => setToggleModal(true)}>{children}</div>
+            {/* on cancel/click outside modal ask user if they want to discard changes? */}
+            <div onClick={() => setToggleModal(!toggleModal)}>{children}</div>
             {toggleModal && (
                 renderInPortal && destination ? (
                     createPortal(
@@ -105,8 +110,9 @@ export default function YearFormController({
                     document.getElementById(destination!)!
                 )
                 ) : (
-                    <div className="z-10 absolute top-50 left-50">
+                    <div className="z-10 inset-0 fixed flex justify-center items-center">
                         {yearForm}
+                        <div onClick={() => setToggleModal(false)} className="fixed min-h-screen h-full w-full  bg-gray-500/75" />
                     </div>
                 )
             )}

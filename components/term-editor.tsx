@@ -11,7 +11,7 @@ import { formatDate, parseISODate, parseLocalDate } from "@/lib/utils";
 type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
 
 interface TermEditorProps extends React.ComponentPropsWithoutRef<"div"> {
-    yearId?: number;
+    yearId?: number | null;
     mode: "edit" | "new";
     terms: TermRecord[];
     setTerms: React.Dispatch<React.SetStateAction<TermRecord[]>>;
@@ -35,7 +35,7 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
     useEffect(() => {
         const getTerms = async () => {
             // TODO: move to /api
-            const { data } = await supabase.from("terms").select<"term_start, term_end, name">().eq("academic_year_id", yearId);
+            const { data } = await supabase.from("terms").select<"term_start, term_end, name">().eq("academic_year_id", yearId).order('term_start', { ascending: true });
             if (data) {
                 setTerms(data as TermRecord[]);
             }
@@ -51,7 +51,10 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
         if (newEnd < newStart) {
             setError("Term end date must be after start date!")
             return true
-        };
+        } else if (newEnd > parseLocalDate(yearEnd) || newStart < parseLocalDate(yearStart)) {
+            setError("Term cannot exceed year bounds!");
+            return true;
+        }
 
         for (const [index, term] of oldTerms.entries()) {
             const existingStart = new Date(term.term_start)
@@ -181,7 +184,7 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
                                 </span>
                             </div>
                             <div className="flex gap-2">
-                                <Button type="button" size={"sm"} onClick={() => deleteTerm(index)}>delete</Button>
+                                <Button type="button" size={"sm"} onClick={() => deleteTerm(index)} variant={"destructive"}>delete</Button>
                                 <Button type="button" size={"sm"} onClick={() => toggleUpdate(index, term)}>modify</Button>
                             </div>
                         </div>
@@ -241,7 +244,7 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
                     </div>
                     <div className="grid grid-cols-2 gap-6">
                         <div className="flex flex-col gap-1">
-                            <Label >Start{yearStart}</Label>
+                            <Label >Start Date</Label>
                             <Input 
                             aria-label="Date" 
                             type="date" 
@@ -256,7 +259,7 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
                             }} />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <Label >End{yearEnd}</Label>
+                            <Label >End Date</Label>
                             <Input 
                             aria-label="Date" 
                             type="date" 
