@@ -1,12 +1,9 @@
-import YearFormController from "@/components/academic-year/year-form-controller";
-import { Button } from "@/components/ui/button";
+import ScheduleController from "@/components/schedule/schedule-controller";
 
 export default function SchedulePage() {
     return (
-        <div className="flex justify-center w-full">
-            <YearFormController mode="edit" yearId={31} >
-                <Button>New Year</Button>
-            </YearFormController>
-        </div>
+        <main className="w-screen">
+            <ScheduleController />
+        </main>
     )
 }

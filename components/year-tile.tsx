@@ -15,7 +15,7 @@ const YearTile = React.forwardRef<HTMLDivElement, YearTileProps>(
         const formattedStart = formatDate(yearStart, { month: "short", day: "numeric", year: "numeric" })
         const formattedEnd = formatDate(yearEnd, { month: "short", day: "numeric", year: "numeric" })
         return (
-            <div ref={ref} onClick={onClick} className={cn("flex flex-col py-4 px-2 w-full h-16 hover:bg-slate-300 hover:cursor-pointer", className)}>
+            <div ref={ref} onClick={onClick} className={cn("flex flex-col py-4 px-2 w-full h-16 hover:bg-blue-500 hover:cursor-pointer", className)}>
                 <span>{shortStart} {shortStart === shortEnd ? "" : `- ${shortEnd}`}</span>
                 <span className="text-sm">{formattedStart} - {formattedEnd}</span>
             </div>
