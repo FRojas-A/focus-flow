@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/database.types";
 import ScheduleNav from "./schedule-nav";
 import ClassSelector from "./class-selector";
+import { useYear } from "./year-context";
 
 type YearRecord = Database["public"]["Tables"]["academic_years"]["Row"];
 type SubjectRecord = Database["public"]["Tables"]["subjects"]["Row"];
@@ -14,11 +15,10 @@ export default function ScheduleController() {
 
 
     const supabase = createClient();
-    const [yearId, setYearId] = useState<number | null>(null);
     const [years, setYears] = useState<YearRecord[]>([]);
     const [subjects, setSubjects] = useState<SubjectRecord[]>([]);
     const [classes, setClasses] = useState<BasicClassRecord[]>([])
-    // const [formattedYear, setFormattedYear] = useState<string | null>(null);
+    const { yearId } = useYear();
 
     // TODO: fix - each class selection is triggering all calls 
     useEffect(() => {
@@ -69,17 +69,18 @@ export default function ScheduleController() {
                 console.log(error)
             }
         }
-
-        getSubjects();
-        getClasses();
+        if (yearId !== null) {
+            getSubjects();
+            getClasses();
+        }
     }, [yearId, supabase])
 
     return (
         <div>
-            <ScheduleNav yearId={yearId} />
+            <ScheduleNav />
             <div className="grid grid-cols-2 divide-x min-h-screen">
                 {/* selects year for editing and displaying classes */}
-                <YearSelector yearId={yearId} setYearId={setYearId} years={years} />
+                <YearSelector years={years} />
                 {/* displays classes and class viewer - viewer allows editing */}
                 <ClassSelector subjects={subjects} classes={classes} />
             </div>

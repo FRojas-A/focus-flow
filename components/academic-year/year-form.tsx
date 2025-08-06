@@ -1,24 +1,16 @@
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../ui/modal";
-import { Database } from "@/database.types";
 import TermEditor from "../term-editor";
 import { Input } from "../ui/input";
 import { parseISODate, parseLocalDate } from "@/lib/utils";
+import { useYear } from "../schedule/year-context";
 
-type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
 
 interface YearFormProps extends React.ComponentPropsWithoutRef<"div"> {
-    yearId?: number | null;
     mode: "edit" | "new";
     error: string | null;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
-    yearStart: string;
-    setYearStart: React.Dispatch<React.SetStateAction<string>>;
-    yearEnd: string;
-    setYearEnd: React.Dispatch<React.SetStateAction<string>>;
-    terms: TermRecord[];
-    setTerms: React.Dispatch<React.SetStateAction<TermRecord[]>>;
     setModifiedTerms: React.Dispatch<React.SetStateAction<Set<number>>>;
     handleSubmit: () => void
     setToggleModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -27,20 +19,15 @@ interface YearFormProps extends React.ComponentPropsWithoutRef<"div"> {
 
 export default function YearForm({
     mode,
-    yearId,
     error,
     setError,
-    yearStart,
-    setYearStart,
-    yearEnd,
-    setYearEnd,
-    terms,
-    setTerms,
     setModifiedTerms,
     handleSubmit,
     setToggleModal,
     isLoading
 }: YearFormProps) {
+
+    const { yearStart, yearEnd, setYearStart, setYearEnd } = useYear()
     
     return (
         <Modal className="w-[30rem] z-20">
@@ -65,7 +52,7 @@ export default function YearForm({
                             type="date" 
                             id="startDate" 
                             className="border" 
-                            defaultValue={parseISODate(yearStart)} 
+                            defaultValue={mode === "new" ? "" : parseISODate(yearStart)} 
                             onChange={(e) => {
                                 const date = parseLocalDate(e.target.value)
                                 setYearStart(date.toISOString())
@@ -78,7 +65,7 @@ export default function YearForm({
                             type="date" 
                             id="endDate" 
                             className="border" 
-                            defaultValue={parseISODate(yearEnd)} 
+                            defaultValue={mode === "new" ? "" : parseISODate(yearEnd)} 
                             onChange={(e) => {
                                 const date = parseLocalDate(e.target.value)
                                 setYearEnd(date.toISOString())
@@ -89,14 +76,9 @@ export default function YearForm({
                         <h2 className="text-lg">Terms</h2>
                         <div className="flex justify-center align-items w-full">
                             <TermEditor 
-                                terms={terms} 
-                                setTerms={setTerms}
                                 setModifiedTerms={setModifiedTerms}
-                                yearId={yearId} 
-                                mode={mode} 
-                                yearStart={parseISODate(yearStart)} 
-                                yearEnd={parseISODate(yearEnd)}
-                                setError={setError} 
+                                mode={mode}
+                                setError={setError}
                             />
                         </div>
                     </div>
@@ -107,7 +89,6 @@ export default function YearForm({
                             <Button type="button" size={"sm"} variant={"destructive"}>Delete</Button>
                         )}
                     </div>
-                    {/* TODO: add additional button to delete */}
                     <div className="flex gap-2">
                         <Button onClick={() => setToggleModal(false)} type="button" size={"sm"} variant={"outline"}>Cancel</Button>
                         <Button type="submit" disabled={isLoading} size={"sm"}>Save</Button>

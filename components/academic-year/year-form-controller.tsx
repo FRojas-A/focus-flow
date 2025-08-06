@@ -1,14 +1,9 @@
 "use client";
-import { Database } from "@/database.types";
-import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import YearForm from "./year-form";
-
-type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
-
+import { useYear } from "../schedule/year-context";
 interface YearFormControllerProps extends React.ComponentPropsWithoutRef<"div"> {
-    yearId?: number | null;
     mode: "edit" | "new";
     renderInPortal?: boolean;
     children: React.ReactNode;
@@ -17,33 +12,17 @@ interface YearFormControllerProps extends React.ComponentPropsWithoutRef<"div"> 
 
 export default function YearFormController({
     mode,
-    yearId,
     renderInPortal,
     children,
     destination
 }: YearFormControllerProps) {
 
-    const supabase = createClient();
-    const [yearStart, setYearStart] = useState("");
-    const [yearEnd, setYearEnd] = useState("");
-    const [terms, setTerms] = useState<TermRecord[]>([])
+    const { yearId, terms, yearStart, yearEnd, setTerms, setTermId, setTermStart, setTermEnd } = useYear();
     const [modifiedTerms, setModifiedTerms] = useState<Set<number>>(new Set());
     const [toggleModal, setToggleModal] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        const getYear = async () => {
-            // TODO: move to /api
-            const { data } = await supabase.from("academic_years").select<"year_start, year_end">().eq("id", yearId).single();
-            if (data) {
-                setYearStart(data.year_start)
-                setYearEnd(data.year_end);
-            }
-        }
-        if (mode === "edit" && yearId) getYear();
-    }, [supabase, yearId, mode])
 
     useEffect(() => {
         if (success) setToggleModal(false);
@@ -82,17 +61,18 @@ export default function YearFormController({
         }
     }
 
+    const closeYearForm = () => {
+        setToggleModal(false);
+        setTerms([]);
+        setTermId(null);
+        setTermStart("");
+        setTermEnd("");
+    }
+
     const yearForm = <YearForm 
                         mode={mode}
-                        yearId={yearId}
                         error={error}
                         setError={setError}
-                        yearStart={yearStart}
-                        setYearStart={setYearStart}
-                        yearEnd={yearEnd}
-                        setYearEnd={setYearEnd}
-                        terms={terms}
-                        setTerms={setTerms}
                         setModifiedTerms={setModifiedTerms}
                         handleSubmit={handleSubmit}
                         setToggleModal={setToggleModal}
@@ -112,7 +92,7 @@ export default function YearFormController({
                 ) : (
                     <div className="z-10 inset-0 fixed flex justify-center items-center">
                         {yearForm}
-                        <div onClick={() => setToggleModal(false)} className="fixed min-h-screen h-full w-full  bg-gray-500/75" />
+                        <div onClick={closeYearForm} className="fixed min-h-screen h-full w-full  bg-gray-500/75" />
                     </div>
                 )
             )}

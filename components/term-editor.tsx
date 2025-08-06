@@ -6,31 +6,26 @@ import { Label } from "./ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/database.types";
 import { QueryError } from "@supabase/supabase-js";
-import { formatDate, parseISODate, parseLocalDate } from "@/lib/utils";
+import { cn, formatDate, parseISODate, parseLocalDate } from "@/lib/utils";
+import { useYear } from "./schedule/year-context";
 
 type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
 
 interface TermEditorProps extends React.ComponentPropsWithoutRef<"div"> {
-    yearId?: number | null;
-    mode: "edit" | "new";
-    terms: TermRecord[];
-    setTerms: React.Dispatch<React.SetStateAction<TermRecord[]>>;
+    mode: "edit" | "new" | "select";
     setModifiedTerms: React.Dispatch<React.SetStateAction<Set<number>>>;
-    yearStart: string;
-    yearEnd: string;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms, mode, yearEnd, yearStart, setError }: TermEditorProps) {
+export default function TermEditor ({ setModifiedTerms, mode, setError, className }: TermEditorProps) {
     const supabase = createClient();
-    const [termStart, setTermStart] = useState("");
-    const [termEnd, setTermEnd] = useState("");
     const [termName, setTermName] = useState("");
     const [tileForm, setTermForm] = useState(false);
     const [openIndex, setOpenIndex]  = useState<number | null>(null);
     const [updateStart, setUpdateStart] = useState("");
     const [updateEnd, setUpdateEnd] = useState("");
     const [updateName, setUpdateName] = useState("");
+    const { yearId, terms, setTerms, yearStart, yearEnd, termId, setTermId, setTermStart, termStart, setTermEnd, termEnd } = useYear();
 
     useEffect(() => {
         const getTerms = async () => {
@@ -40,7 +35,7 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
                 setTerms(data as TermRecord[]);
             }
         }
-        if (yearId && mode === "edit") getTerms();
+        if (yearId && (mode === "edit" || mode === "select")) getTerms();
 
     }, [supabase, yearId, mode, setTerms])
 
@@ -164,6 +159,12 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
         setOpenIndex(index === openIndex ? null : index);
     }
 
+    const setTermInfo = (term: TermRecord) => {
+        setTermId(termId === term.id ? null : term.id);
+        setTermStart(termId === term.id ? "" : term.term_start);
+        setTermEnd(termId === term.id ? "" : term.term_end);
+    }
+
     // TODO: decouple states and pass data to server component instead
 
     return (
@@ -171,10 +172,14 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
             {/* Display and modify terms - term editor */}
             {terms.length > 0 && terms.map((term, index) => {
                 return (
-                    <div key={index} className=" border p-3">
+                    <div 
+                        key={index} 
+                        className={cn(`border p-3 transition-all duration-75 ${openIndex !== index && mode === "select" ? "hover:scale-105 hover:cursor-pointer hover:bg-blue-300" : ""} ${termId === term.id ? "bg-blue-500 hover:bg-blue-500" : ""}`, className)} 
+                        onClick={() => setTermInfo(term)}
+                    >
                         <div className="flex justify-between">
-                            <div className="flex flex-col gap-2">
-                                {openIndex === index ? (
+                            <div className="flex flex-col">
+                                {openIndex === index && mode !== "select" ? (
                                     <Input value={updateName} onChange={(e) => setUpdateName(e.target.value)} />
                                 ) : (
                                     <div>{term.name}</div>
@@ -183,12 +188,14 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
                                     {formatDate(term.term_start, { day: "numeric", month: "short", year: "numeric" })} - {formatDate(term.term_end, { day: "numeric", month: "short", year: "numeric" })}
                                 </span>
                             </div>
-                            <div className="flex gap-2">
-                                <Button type="button" size={"sm"} onClick={() => deleteTerm(index)} variant={"destructive"}>delete</Button>
-                                <Button type="button" size={"sm"} onClick={() => toggleUpdate(index, term)}>modify</Button>
-                            </div>
+                            {mode !== "select" && (
+                                <div className="flex gap-2">
+                                    <Button type="button" size={"sm"} onClick={() => deleteTerm(index)} variant={"destructive"}>delete</Button>
+                                    <Button type="button" size={"sm"} onClick={() => toggleUpdate(index, term)}>modify</Button>
+                                </div>
+                            )}
                         </div>
-                        {openIndex === index && (
+                        {openIndex === index && mode !== "select" && (
                         <div className="grid grid-cols-2 gap-4 py-4">
                             <div className="flex flex-col gap-1">
                                 <Label>Start Date</Label>
@@ -228,55 +235,63 @@ export default function TermEditor ({ yearId, terms, setTerms, setModifiedTerms,
                     </div>
                 )
             })}
-            {/* Add new Term - tile-form */}
-            {tileForm ? (
-                <div className="flex flex-col gap-4">
-                    <div className="flex justify-between">
-                        <div>
-                            {/* Name */}
-                            <Label >Name</Label>
-                            <Input value={termName} onChange={(e) => setTermName(e.target.value)}/>
-                        </div>
-                        <div>
-                            {/* close */}
-                            <Button onClick={() => setTermForm(false)} type="button">X</Button>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="flex flex-col gap-1">
-                            <Label >Start Date</Label>
-                            <Input 
-                            aria-label="Date" 
-                            type="date" 
-                            id="startDate" 
-                            className="border" 
-                            min={yearStart} 
-                            max={yearEnd} 
-                            onChange={(e) => {
-                                const date = parseLocalDate(e.target.value);
-                                console.log("start")
-                                setTermStart(date.toISOString());
-                            }} />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <Label >End Date</Label>
-                            <Input 
-                            aria-label="Date" 
-                            type="date" 
-                            id="startDate" 
-                            className="border" 
-                            min={parseISODate(termStart)} 
-                            max={yearEnd} 
-                            onChange={(e) => {
-                                const date = parseLocalDate(e.target.value);
-                                setTermEnd(date.toISOString());
-                            }} />
-                        </div>
-                    </div>
-                        <Button className="w-full" type="button" onClick={saveTerm} size={"sm"}>Add Term</Button>
+            {mode === "select" && terms.length === 0 && (
+                <div className="flex p-4">
+                    Edit the year to add a term!
                 </div>
-            ) : (
-                <Button onClick={() => setTermForm(true)} type="button">Add Term</Button>
+            )}
+            {/* Add new Term - tile-form */}
+            {mode !== "select" && (
+                <>
+                    {tileForm ? (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex justify-between">
+                                <div>
+                                    {/* Name */}
+                                    <Label >Name</Label>
+                                    <Input value={termName} onChange={(e) => setTermName(e.target.value)}/>
+                                </div>
+                                <div>
+                                    {/* close */}
+                                    <Button onClick={() => setTermForm(false)} type="button">X</Button>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="flex flex-col gap-1">
+                                    <Label >Start Date</Label>
+                                    <Input 
+                                    aria-label="Date" 
+                                    type="date" 
+                                    id="startDate" 
+                                    className="border" 
+                                    min={yearStart} 
+                                    max={yearEnd} 
+                                    onChange={(e) => {
+                                        const date = parseLocalDate(e.target.value);
+                                        setTermStart(date.toISOString());
+                                    }} />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <Label >End Date</Label>
+                                    <Input 
+                                    aria-label="Date" 
+                                    type="date" 
+                                    id="startDate" 
+                                    className="border" 
+                                    min={parseISODate(termStart)} 
+                                    max={yearEnd} 
+                                    onChange={(e) => {
+                                        const date = parseLocalDate(e.target.value);
+                                        setTermEnd(date.toISOString());
+                                    }} />
+                                </div>
+                            </div>
+                                <Button className="w-full" type="button" onClick={saveTerm} size={"sm"}>Add Term</Button>
+                        </div>
+                    ) : (
+                        <Button onClick={() => setTermForm(true)} type="button">Add Term</Button>
+                    )}
+                </>
             )}
         </div>
     )
