@@ -1,12 +1,15 @@
-import ScheduleController from "@/components/schedule/schedule-controller";
-import { YearProvider } from "@/components/schedule/year-context";
+import ClassSelector from "@/components/schedule/class-selector";
+import YearSelector from "@/components/schedule/year-selector";
 
 export default function SchedulePage() {
+    
     return (
-        <main className="w-screen">
-            <YearProvider>
-                <ScheduleController />
-            </YearProvider>
+        <main className="w-full grid grid-cols-3 divide-x min-h-screen">
+            <YearSelector/>
+            {/* Class selector */}
+            <ClassSelector />
+            {/* Class viewer */}
+            <div id="class-viewer" />
         </main>
     )
 }

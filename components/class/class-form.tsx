@@ -3,8 +3,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../ui/modal";
-import { useYear } from "../schedule/year-context";
-import TermEditor from "../term-editor";
+import { useSchedule } from "../schedule/schedule-context";
 
 
 export default function ClassForm({ 
@@ -21,7 +20,7 @@ export default function ClassForm({
     setError: React.Dispatch<React.SetStateAction<string | null>>
 }) {
 
-    const { year, yearId, setTerms, setTermId, setTermStart, setTermEnd } = useYear();
+    const { year, yearId } = useSchedule();
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -106,7 +105,7 @@ export default function ClassForm({
                             Selecting a term will bind your classes to that term’s duration. If no term is selected, classes will default to the full academic year.
                         </div>
                         <div>
-                            <TermEditor mode="select" setModifiedTerms={setModifiedTerms} setError={setError} />
+                            
                         </div>
                     </div>
                 </ModalBody>
@@ -115,10 +114,6 @@ export default function ClassForm({
                     <div className="flex gap-2">
                         <Button variant={"outline"} size={"sm"} type="button" onClick={() => {
                             setIsOpen(false);
-                            setTerms([])
-                            setTermId(null);
-                            setTermStart("");
-                            setTermEnd("");
                         }} >Cancel</Button>
                         <Button size={"sm"} type="submit">Save</Button>
                     </div>

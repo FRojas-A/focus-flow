@@ -29,6 +29,18 @@ const ModalHeader = React.forwardRef<
 ));
 ModalHeader.displayName = "ModalHeader";
 
+const ModalError = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("bg-red-400 border border-red-600 w-full h-16 border-4 flex items-center px-6", className)}
+    {...props}
+  />
+));
+ModalError.displayName = "ModalError";
+
 const ModalBody = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -58,5 +70,6 @@ export {
     Modal, 
     ModalHeader,
     ModalBody, 
-    ModalFooter
+    ModalFooter,
+    ModalError
 }

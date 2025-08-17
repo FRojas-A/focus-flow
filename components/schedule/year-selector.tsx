@@ -1,28 +1,37 @@
+"use client";
 import { Database } from "@/database.types";
 import { YearTile } from "../year-tile";
-import { useYear } from "./year-context";
-
-interface YearSelectorProps {
-    years: YearRecord[];
-}
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type YearRecord = Database["public"]["Tables"]["academic_years"]["Row"];
 
-// TODO: rename - only handles years
-export default function YearSelector({ years }: YearSelectorProps) {
+export default function YearSelector() {
 
-    const { yearId, setYearId, setYearStart, setYearEnd } = useYear();
+    const supabase = createClient();
+    const [years, setYears] = useState<YearRecord[]>([])
+
+    useEffect(() => {
+        const getYearData = async () => {
+            try {
+                const { data, error } = await supabase.from("academic_years").select("*");
+                if (error) throw error;
+                const yearData = data as YearRecord[];
+                setYears(yearData);
+            } catch(error: unknown) {
+                if (error instanceof Error) {
+                    console.log(error.message);
+                }
+            }
+        }
+        getYearData();
+    }, [])
 
     return (
         <div>
-            {/* get all years, display via year tile, usestate to open year-form/and set yearID for edit current year */}
             {years.map((year, index) => {
                 return (
-                    <YearTile key={index} yearStart={year.year_start} yearEnd={year.year_end} onClick={() => {
-                        setYearId(year.id);
-                        setYearStart(year.year_start);
-                        setYearEnd(year.year_end);
-                    }} className={yearId === year.id ? "bg-blue-500" : ""}/>
+                    <YearTile key={index} yearStart={year.year_start} yearEnd={year.year_end} year={year}/>
                 )
             })}
         </div>

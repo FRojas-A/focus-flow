@@ -1,15 +1,5 @@
-import { Database } from "@/database.types";
-import { Button } from "../ui/button";
-import ClassFormController from "../class/class-form-controller";
-import { useYear } from "./year-context";
 
-type SubjectRecord = Database["public"]["Tables"]["subjects"]["Row"];
-type BasicClassRecord = Database["public"]["Views"]["basic_class_by_year"]["Row"];
-
-export default function ClassSelector({ subjects, classes }: { subjects: SubjectRecord[], classes: BasicClassRecord[] }) {
-    console.log(subjects, classes);
-
-    const { yearId } = useYear();
+export default function ClassSelector() {
 
     return (
         <div>
@@ -17,16 +7,14 @@ export default function ClassSelector({ subjects, classes }: { subjects: Subject
                 {/* subject selector */}
                 <div>All Classes</div>
                 <div>
-                    <ClassFormController >
-                        <Button size={"sm"} type="button" disabled={typeof yearId !== "number"}>New Class</Button>
-                    </ClassFormController>
+                    {/* new class form */}
                 </div>
             </div>
-            {classes.map((studenClass, index) => {
+            {/* {classes.map((studenClass, index) => {
                 return (
                     <div key={index}>{studenClass.class_name}</div>
                 )
-            })}
+            })} */}
         </div>
     )
 }

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     } = body;
 
   try {
-    if (mode === "new" && !yearId) {
+    if (mode === "new") {
         const { data, error: yearError } = await supabase
             .from("academic_years")
             .insert({ year_start: yearStart, year_end: yearEnd })
@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
 
         if (termError) throw termError;
     } else if (mode === "edit" && yearId) {
+        // TODO: verify that terms are still within year bounds
         const { error: yearError } = await supabase
             .from("academic_years")
             .update({ year_start: yearStart, year_end: yearEnd })
