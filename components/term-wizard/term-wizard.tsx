@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import TermTile from "./term-tile";
 import TermCreator from "./term-creator";
 import { useSchedule } from "../schedule/schedule-context";
+import Skeleton from "../ui/skeleton";
 
 type Term = {
     id?: number;
@@ -56,7 +57,7 @@ export default function TermWizard({ className, mode, terms, setTerms, setError,
 
     if (loading) {
         return (
-            <div className="py-2 text-sm text-muted-foreground">Loading terms…</div>
+            <Skeleton title count={2} repeatCount={3} />
         )
     }
 

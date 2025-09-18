@@ -19,6 +19,8 @@ export default function CalendarPage() {
                     height="100%"
                     expandRows={true}
                     handleWindowResize={true}
+                    slotMinTime="07:00:00"
+                    slotMaxTime="22:00:00"
                 />
             </div>
         </div>

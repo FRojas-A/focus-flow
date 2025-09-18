@@ -4,6 +4,7 @@ import { YearTile } from "../year-tile";
 import { useEffect, useState } from "react";
 import { useSchedule } from "./schedule-context";
 import { formatDate } from "@/lib/utils";
+import Skeleton from "../ui/skeleton";
 
 type YearRecord = Database["public"]["Tables"]["academic_years"]["Row"];
 
@@ -41,10 +42,12 @@ export default function YearSelector() {
     return (
         <div>
             {loading && (
-                <div className="py-2 text-sm text-muted-foreground">Loading years…</div>
+                <div className="p-2">
+                    <Skeleton count={1} title={true} repeatCount={3} />
+                </div>
             )}
             {error && (
-                <div className="py-2 text-sm text-red-600" role="alert">{error}</div>
+                <div className="p-2 text-sm text-red-600" role="alert">{error}</div>
             )}
             {!loading && !error && years.map((year) => {
                 const shortStart = formatDate(year.year_start, { year: "numeric" });
