@@ -3,19 +3,24 @@ import { Input } from "../ui/input";
 import { createClient } from "@/lib/supabase/client";
 import { QueryError } from "@supabase/supabase-js";
 import { Button } from "../ui/button";
-import { Database } from "@/database.types";
 import { useState } from "react";
 import { Label } from "../ui/label";
 
-type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
+type Term = {
+    id?: number;
+    name: string;
+    term_start: string;
+    term_end: string;
+    academic_year_id?: number;
+}
 
 interface TermTileProps {
-    term: TermRecord;
+    term: Term;
     index: number;
     yearStart: string;
     yearEnd: string;
-    terms: TermRecord[];
-    setTerms: React.Dispatch<React.SetStateAction<TermRecord[]>>;
+    terms: Term[];
+    setTerms: React.Dispatch<React.SetStateAction<Term[]>>;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
     setModifiedTerms: React.Dispatch<React.SetStateAction<Set<number>>>;
 }
@@ -70,7 +75,7 @@ export default function TermTile({ term, index, yearStart, yearEnd, terms, setTe
 
         if (checkOverlap(updateStart, updateEnd, trimmedName, terms, index)) return;
 
-        const updatedTerm = terms[index] as TermRecord;
+        const updatedTerm = terms[index] as Term;
 
         updatedTerm.term_start = updateStart || terms[index].term_start;
         updatedTerm.term_end = updateEnd || terms[index].term_end;
@@ -86,7 +91,7 @@ export default function TermTile({ term, index, yearStart, yearEnd, terms, setTe
         setOpenIndex(null);
     }
 
-    const checkOverlap = (start: string, end: string, name: string, oldTerms: TermRecord[], i?: number): boolean => {
+    const checkOverlap = (start: string, end: string, name: string, oldTerms: Term[], i?: number): boolean => {
         const newStart = new Date(start);
         const newEnd = new Date(end);
 
@@ -113,7 +118,7 @@ export default function TermTile({ term, index, yearStart, yearEnd, terms, setTe
         return false;
     }
 
-    const toggleUpdate = (index: number, term: TermRecord) => {
+    const toggleUpdate = (index: number, term: Term) => {
         setUpdateName(term.name);
         setUpdateStart(term.term_start);
         setUpdateEnd(term.term_end);

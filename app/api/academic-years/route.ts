@@ -6,6 +6,35 @@ import { NextRequest, NextResponse } from "next/server";
 
 type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
 
+export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const rawOrderBy = searchParams.get("orderBy") ?? "year_start"; // e.g., year_start | year_end | id
+    const orderDir = (searchParams.get("order") ?? "desc").toLowerCase(); // asc | desc
+    const ascending = orderDir === "asc";
+    const allowedOrderColumns = new Set(["year_start", "year_end", "id", "created_at", "user_id"]);
+    const orderBy = allowedOrderColumns.has(rawOrderBy) ? rawOrderBy : "year_start";
+
+    // Fetch all academic years; adjust ordering via query params
+    let query = supabase.from("academic_years").select("*");
+    // Only apply order if a column name is provided
+    query = query.order(orderBy as "year_start" | "year_end" | "id" | "created_at" | "user_id", { ascending });
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, data });
+  } catch (error: unknown) {
+    const queryError = error as QueryError;
+    return NextResponse.json(
+      { success: false, error: queryError.message },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: NextRequest) {
     const body = await req.json();
     const supabase = await createClient();

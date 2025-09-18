@@ -5,14 +5,20 @@ import { Button } from "../ui/button";
 import YearInput from "./year-input";
 import { useSchedule } from "../schedule/schedule-context";
 import TermWizard from "../term-wizard/term-wizard";
-import { Database } from "@/database.types";
 import { parseISODate } from "@/lib/utils";
 
 interface YearWizardProps {
     mode: "new" | "edit";
 }
 
-type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
+// Lightweight client-side Term shape used by Term Wizard components
+type Term = {
+    id?: number;
+    name: string;
+    term_start: string;
+    term_end: string;
+    academic_year_id?: number;
+}
 
 export default function YearWizard({ mode }: YearWizardProps) {
 
@@ -22,7 +28,7 @@ export default function YearWizard({ mode }: YearWizardProps) {
     const [toggleModal, setToggleModal] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [modifiedTerms, setModifiedTerms] = useState<Set<number>>(new Set());
-    const [terms, setTerms] = useState<TermRecord[]>([]);
+    const [terms, setTerms] = useState<Term[]>([]);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +36,8 @@ export default function YearWizard({ mode }: YearWizardProps) {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
+
+        // TODO: check if start/end are valid
 
         try {
             const res = await fetch("/api/academic-years", {
@@ -84,7 +92,7 @@ export default function YearWizard({ mode }: YearWizardProps) {
                                 />
                                 <div className="">
                                     <h2 className="text-lg">Terms</h2>
-                                    <div className="flex justify-center align-items w-full">
+                                    <div className="flex justify-center items-center w-full">
                                         <TermWizard
                                             terms={terms}
                                             setTerms={setTerms}

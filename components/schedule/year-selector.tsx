@@ -2,26 +2,37 @@
 import { Database } from "@/database.types";
 import { YearTile } from "../year-tile";
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useSchedule } from "./schedule-context";
+import { formatDate } from "@/lib/utils";
 
 type YearRecord = Database["public"]["Tables"]["academic_years"]["Row"];
 
 export default function YearSelector() {
-
-    const supabase = createClient();
-    const [years, setYears] = useState<YearRecord[]>([])
+    const [years, setYears] = useState<YearRecord[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const { yearId, setYearId, setYearStart, setYearEnd, setYear } = useSchedule();
 
     useEffect(() => {
         const getYearData = async () => {
             try {
-                const { data, error } = await supabase.from("academic_years").select("*");
-                if (error) throw error;
-                const yearData = data as YearRecord[];
-                setYears(yearData);
+                const res = await fetch(`/api/academic-years?orderBy=year_start&order=desc`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) {
+                    throw new Error(json.error || `Request failed with status ${res.status}`);
+                }
+                const data = (json.data ?? []) as YearRecord[];
+                setYears(data);
+                setError(null);
             } catch(error: unknown) {
                 if (error instanceof Error) {
-                    console.log(error.message);
+                    setError(error.message);
                 }
+            } finally {
+                setLoading(false);
             }
         }
         getYearData();
@@ -29,9 +40,28 @@ export default function YearSelector() {
 
     return (
         <div>
-            {years.map((year, index) => {
+            {loading && (
+                <div className="py-2 text-sm text-muted-foreground">Loading years…</div>
+            )}
+            {error && (
+                <div className="py-2 text-sm text-red-600" role="alert">{error}</div>
+            )}
+            {!loading && !error && years.map((year) => {
+                const shortStart = formatDate(year.year_start, { year: "numeric" });
+                const shortEnd = formatDate(year.year_end, { year: "numeric" });
+                const yearLabel = `${shortStart}${shortStart === shortEnd ? "" : ` - ${shortEnd}`}`;
                 return (
-                    <YearTile key={index} yearStart={year.year_start} yearEnd={year.year_end} year={year}/>
+                    <YearTile
+                        key={year.id}
+                        year={year}
+                        selected={yearId === year.id}
+                        onSelectYear={(y) => {
+                            setYearId(y.id);
+                            setYearStart(y.year_start);
+                            setYearEnd(y.year_end);
+                            setYear(yearLabel);
+                        }}
+                    />
                 )
             })}
         </div>

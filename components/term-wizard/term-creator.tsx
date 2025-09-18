@@ -4,13 +4,18 @@ import { Button } from "../ui/button";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import { Input } from "../ui/input";
 import { useState } from "react";
-import { Database } from "@/database.types";
 
-type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
+type Term = {
+    id?: number;
+    name: string;
+    term_start: string;
+    term_end: string;
+    academic_year_id?: number;
+}
 
 interface TermCreatorProps {
-    terms: TermRecord[];
-    setTerms: React.Dispatch<React.SetStateAction<TermRecord[]>>;
+    terms: Term[];
+    setTerms: React.Dispatch<React.SetStateAction<Term[]>>;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
     yearStart: string;
     yearEnd: string;
@@ -23,7 +28,7 @@ export default function TermCreator({ terms, setTerms, setError, yearStart, year
     const [termEnd, setTermEnd] = useState("");
     const [tileForm, setTermForm] = useState(false);
 
-    const checkOverlap = (start: string, end: string, name: string, oldTerms: TermRecord[], i?: number): boolean => {
+    const checkOverlap = (start: string, end: string, name: string, oldTerms: Term[], i?: number): boolean => {
         const newStart = new Date(start);
         const newEnd = new Date(end);
 
@@ -69,7 +74,7 @@ export default function TermCreator({ terms, setTerms, setError, yearStart, year
 
         if (checkOverlap(termStart, termEnd, trimmedName, terms)) return;
 
-        const newTerm = { term_start: termStart, term_end: termEnd, name: trimmedName } as TermRecord;
+        const newTerm: Term = { term_start: termStart, term_end: termEnd, name: trimmedName };
 
         setTerms(prev => [...prev, newTerm]);
         setTermForm(false)

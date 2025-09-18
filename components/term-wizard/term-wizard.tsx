@@ -1,40 +1,64 @@
 "use client";
-import { useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { Database } from "@/database.types";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import TermTile from "./term-tile";
 import TermCreator from "./term-creator";
 import { useSchedule } from "../schedule/schedule-context";
 
+type Term = {
+    id?: number;
+    name: string;
+    term_start: string;
+    term_end: string;
+    academic_year_id?: number;
+}
+
 interface TermWizardProps extends React.ComponentPropsWithoutRef<"div"> {
     mode: "edit" | "new",
-    terms: TermRecord[];
-    setTerms: React.Dispatch<React.SetStateAction<TermRecord[]>>;
+    terms: Term[];
+    setTerms: React.Dispatch<React.SetStateAction<Term[]>>;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
     setModifiedTerms: React.Dispatch<React.SetStateAction<Set<number>>>;
     yearStart: string;
     yearEnd: string;
 }
 
-type TermRecord = Database["public"]["Tables"]["terms"]["Row"];
-
 export default function TermWizard({ className, mode, terms, setTerms, setError, setModifiedTerms, yearStart, yearEnd }: TermWizardProps) {
 
-    const supabase = createClient();
     const { yearId } = useSchedule();
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const getTerms = async () => {
-            // TODO: move to /api
-            const { data } = await supabase.from("terms").select<"term_start, term_end, name">().eq("academic_year_id", yearId).order('term_start', { ascending: true });
-            if (data) {
-                setTerms(data as TermRecord[]);
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/terms?academic_year_id=${yearId}&order=asc`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+                const json = await res.json();
+                if (!res.ok || !json.success) {
+                    throw new Error(json.error || `Request failed with status ${res.status}`);
+                }
+                const data = (json.data ?? []) as Term[];
+                setTerms(data);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    setError(error.message);
+                }
+            } finally {
+                setLoading(false);
             }
         }
         if (yearId && (mode === "edit")) getTerms();
 
-    }, [supabase, yearId, mode, setTerms])
+    }, [])
+
+    if (loading) {
+        return (
+            <div className="py-2 text-sm text-muted-foreground">Loading terms…</div>
+        )
+    }
 
     return (
         <div className="w-full flex flex-col gap-2">

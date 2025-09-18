@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased flex`}>
+      <body className={`${geistSans.className} antialiased flex min-h-screen`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -35,7 +35,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
             <Nav />
-            {children}
+            <div className="flex-1 min-h-screen w-full overflow-hidden">
+              {children}
+            </div>
         </ThemeProvider>
       </body>
     </html>

@@ -4,7 +4,7 @@ import YearSelector from "@/components/schedule/year-selector";
 export default function SchedulePage() {
     
     return (
-        <main className="w-full grid grid-cols-3 divide-x min-h-screen">
+        <main className="w-full grid grid-cols-3 divide-x h-[calc(100vh-4rem)]">
             <YearSelector/>
             {/* Class selector */}
             <ClassSelector />
