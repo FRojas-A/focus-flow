@@ -45,8 +45,8 @@ export default function YearWizard({ mode }: YearWizardProps) {
                 body: JSON.stringify({
                     mode,
                     yearId,
-                    yearStart,
-                    yearEnd,
+                    yearStart: yStart || yearStart,
+                    yearEnd: yEnd || yearEnd,
                     terms,
                     modifiedTerms: Array.from(modifiedTerms)
                 }),
