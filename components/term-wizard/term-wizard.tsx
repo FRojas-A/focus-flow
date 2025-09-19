@@ -27,9 +27,9 @@ interface TermWizardProps extends React.ComponentPropsWithoutRef<"div"> {
 export default function TermWizard({ className, mode, terms, setTerms, setError, setModifiedTerms, yearStart, yearEnd }: TermWizardProps) {
 
     const { yearId } = useSchedule();
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
 
-    useEffect(() => {
+    useEffect(() => {        
         const getTerms = async () => {
             setLoading(true);
             try {
@@ -82,7 +82,10 @@ export default function TermWizard({ className, mode, terms, setTerms, setError,
                     </div>
                 )
             })}
-            <TermCreator terms={terms} setTerms={setTerms} setError={setError}
+            <TermCreator 
+                terms={terms} 
+                setTerms={setTerms} 
+                setError={setError}
                 yearStart={yearStart}
                 yearEnd={yearEnd}
             />

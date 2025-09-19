@@ -8,10 +8,12 @@ import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/database.types";
 import { QueryError } from "@supabase/supabase-js";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 interface ClassFormProps extends React.ComponentPropsWithoutRef<"div"> {
-  mode: "create" | "edit";
+  mode: "new" | "edit";
   classId?: string; // Only needed for edit mode
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 type ClassRecord = Database["public"]["Tables"]["classes"]["Row"];
@@ -20,6 +22,7 @@ export function ClassForm({
     className,
     mode,
     classId,
+    setIsOpen,
     ...props
 }: ClassFormProps) {
 
@@ -43,12 +46,12 @@ export function ClassForm({
                 setError(errorMessage.message);
             }
         }
-        getData();
+        if (mode === "edit") getData();
     }, [classId, mode, supabase])
 
   return (
     <div className={className} {...props}>
-      <Modal>
+      <Modal className="w-[780px] z-20">
         <ModalHeader>
             <div className="flex-col">
                 <div className="text-lg">{mode === "edit" ? "Edit Class" : "New Class"}</div>
@@ -113,17 +116,24 @@ export function ClassForm({
                 </div>
             </div>
         </ModalBody>
-        <ModalFooter>
-            <div className="flex flex-row gap-2">
-                <Button variant={"outline"} size={"sm"}>
-                    Cancel
+        <ModalFooter className="">
+            <div className="flex flex-row justify-end w-full gap-2">
+                <Button size={"sm"} className="">
+                    <ChevronLeftIcon /> Previous
+                </Button>
+                <Button size={"sm"} className="">
+                    Next <ChevronRightIcon />
                 </Button>
                 <Button size={"sm"}>
                     {mode === "edit" ? "Update" : "Create"}
                 </Button>
+                <Button variant={"outline"} size={"sm"} onClick={() => setIsOpen(false)}>
+                    Cancel
+                </Button>
             </div>
         </ModalFooter>
       </Modal>
+      <div onClick={() => setIsOpen(false)} className="fixed min-h-screen h-full w-full bg-gray-500/75" />
     </div>
   );
 

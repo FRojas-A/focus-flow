@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { cn, formatDate } from "@/lib/utils";
+import { cn, formatDate, parseLocalDate } from "@/lib/utils";
 import { Database } from "@/database.types";
 
 type YearRecord = Database["public"]["Tables"]["academic_years"]["Row"];
@@ -9,13 +9,13 @@ export interface YearTileProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement> {
         year: YearRecord;
         selected?: boolean;
-        onSelectYear?: (year: YearRecord) => void;
+        onSelectYear: (year: YearRecord) => void;
     }
 
 const YearTile = React.forwardRef<HTMLButtonElement, YearTileProps>(
     ({ className, year, selected = false, onSelectYear, ...rest }, ref) => {
-        const yearStart = year.year_start;
-        const yearEnd = year.year_end;
+        const yearStart = parseLocalDate(year.year_start).toISOString();
+        const yearEnd = parseLocalDate(year.year_end).toISOString();
         const shortStart = formatDate(yearStart, { year: "numeric" });
         const shortEnd = formatDate(yearEnd, { year: "numeric" });
         const formattedStart = formatDate(yearStart, { month: "short", day: "numeric", year: "numeric" });
@@ -26,7 +26,7 @@ const YearTile = React.forwardRef<HTMLButtonElement, YearTileProps>(
             <button
                 type="button"
                 ref={ref}
-                onClick={() => onSelectYear?.(year)}
+                onClick={() => onSelectYear(year)}
                 aria-pressed={selected}
                 data-testid={`year-tile-${year.id}`}
                 className={cn(

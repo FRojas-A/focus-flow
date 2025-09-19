@@ -1,5 +1,10 @@
+import { ClassForm } from "../class-modal";
+import { Button } from "../ui/button";
+import { useState } from "react";
 
 export default function ClassSelector() {
+
+    const [isOpen, setIsOpen] = useState(false);
 
     return (
         <div>
@@ -8,13 +13,10 @@ export default function ClassSelector() {
                 <div>All Classes</div>
                 <div>
                     {/* new class form */}
+                    <Button variant="outline" onClick={() => setIsOpen(isOpen => !isOpen)}>New Class</Button>
                 </div>
             </div>
-            {/* {classes.map((studenClass, index) => {
-                return (
-                    <div key={index}>{studenClass.class_name}</div>
-                )
-            })} */}
+            {isOpen && <ClassForm mode="new" className="z-10 inset-0 fixed flex justify-center items-center" setIsOpen={setIsOpen} />}
         </div>
     )
 }
