@@ -8,7 +8,8 @@ import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { Database } from "@/database.types";
 import { QueryError } from "@supabase/supabase-js";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, Plus } from "lucide-react";
+import SubjectWizard from "./subject/subject-wizard";
 
 interface ClassFormProps extends React.ComponentPropsWithoutRef<"div"> {
   mode: "new" | "edit";
@@ -33,6 +34,7 @@ export function ClassForm({
     const [building, setBuilding] = useState("");
     const [teacher, setTeacher] = useState(""); 
     const [error, setError] = useState<string | null>(null)
+    const [openSubjectWiz, setOpenSubjectWiz] = useState(false);
     
     useEffect(() => {
         const getData = async () => {
@@ -66,13 +68,22 @@ export function ClassForm({
             <div className="grid grid-cols-2">
                 <div className="p-3">
                     <Label htmlFor="subject">Subject</Label>
-                    <Input
-                        id="subject"
-                        type="text"
-                        required
-                        value={subject}
-                        onChange={(e) => setSubject(e.target.value)}
-                    />
+                    <div className="flex flex-row">
+                        {/* TODO: turn into dropdown */}
+                        <Input
+                            id="subject"
+                            type="text"
+                            required
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                            className="border-r-0 rounded-r-none focus:border z-10"
+                        />
+                        {/* on click opens subject modal */}
+                        <Button onClick={() => setOpenSubjectWiz(true)} size="sm" variant="outline" className="h-9 w-9 border-l-0 rounded-l-none">
+                            <Plus />
+                        </Button>
+                        <SubjectWizard setOpen={setOpenSubjectWiz} mode="new" />
+                    </div>
                 </div>
                 <div className="p-3">
                     <Label htmlFor="module">Module</Label>
