@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "../ui/modal";
 import SubjectForm from "./subject-form";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "react-hot-toast";
 
 type SubjectRecord = {
     id?: number;
@@ -39,9 +40,15 @@ export default function SubjectWizard({ setOpen, subject = null, onSuccess }: Su
             if (!result.success) throw new Error(result.error);
             setSuccess(true);
             onSuccess?.();
+            toast.success("Subject saved successfully", {
+                duration: 3000,
+            });
             setOpen(false);
         } catch (error: unknown) {
             setError(error instanceof Error ? error.message : "An unknown error occurred");
+            toast.error(error instanceof Error ? error.message : "Could not save subject", {
+                duration: 3000,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -55,9 +62,15 @@ export default function SubjectWizard({ setOpen, subject = null, onSuccess }: Su
                 if (error) throw error;
                 setSuccess(true);
                 onSuccess?.();
+                toast.success("Subject deleted successfully", {
+                    duration: 3000,
+                });
                 setOpen(false);
             } catch(error: unknown) {
                 setError(error instanceof Error ? error.message : "An unknown error occurred");
+                toast.error(error instanceof Error ? error.message : "Could not delete subject", {
+                    duration: 3000,
+                });
             } finally {
                 setIsLoading(false);
             }
@@ -70,7 +83,6 @@ export default function SubjectWizard({ setOpen, subject = null, onSuccess }: Su
         const formButton = e.nativeEvent;
         setIsLoading(true);
         if (formButton instanceof SubmitEvent) {
-            console.log(formButton?.submitter?.id)
             if (formButton?.submitter?.id === "subjectSubmit") {
                 submitSubject(formData);
                 return;

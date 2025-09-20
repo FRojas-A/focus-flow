@@ -8,6 +8,7 @@ import ClassDetailsForm from "./class-details-form";
 import ClassModalFooter from "./class-wizard-footer";
 import ClassTimeForm from "./class-time-form";
 import ClassYearForm from "./class-year-form";
+import { Loader2 } from "lucide-react";
 
 interface ClassFormProps extends React.ComponentPropsWithoutRef<"div"> {
   mode: "new" | "edit";
@@ -26,14 +27,15 @@ export function ClassForm({
     ...props
 }: ClassFormProps) {
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const [openSubjectWizard, setOpenSubjectWizard] = useState(false);
     const [step, setStep] = useState(1);
-    const [getSubjects, setGetSubjects] = useState<() => void>(() => {});
+    const [getSubjects, setGetSubjects] = useState<() => () => void>(() => () => console.log("initial getSubjects function"));
     const formRef = useRef<HTMLFormElement | null>(null);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        console.log("Form submitted");
         e.preventDefault();
+        setLoading(true);
         const formData = new FormData(e.currentTarget);
         const classInfo = Object.fromEntries(formData.entries().filter(([key]) => key !== "days[]"));
         const days = formData.getAll("days[]");
@@ -56,7 +58,10 @@ export function ClassForm({
                     {error}
                 </div>
                 <form className="flex flex-col min-h-[300px] h-full relative" onSubmit={handleSubmit} ref={formRef}>
-                    <ClassDetailsForm mode={mode} setOpenSubjectWizard={setOpenSubjectWizard} hidden={step !== 1} setGetSubjects={setGetSubjects} />
+                    {loading && <div className="flex absolute top-0 left-0 w-full h-full items-center justify-center bg-gray-500/50">
+                        <Loader2 className="animate-spin size-12" />
+                    </div>}
+                    <ClassDetailsForm mode={mode} setOpenSubjectWizard={setOpenSubjectWizard} hidden={step !== 1} setGetSubjects={setGetSubjects} setLoading={setLoading} />
                     <ClassTimeForm mode={mode} hidden={step !== 2} />
                     <ClassYearForm mode={mode} hidden={step !== 3} />
                     <ClassModalFooter mode={mode} setIsOpen={setIsOpen} setStep={setStep} step={step} formRef={formRef} />

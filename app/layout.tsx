@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Nav from "@/components/nav";
+import { Toaster } from "react-hot-toast";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -38,6 +39,7 @@ export default function RootLayout({
             <div className="flex-1 min-h-screen w-full overflow-hidden">
               {children}
             </div>
+            <Toaster />
         </ThemeProvider>
       </body>
     </html>

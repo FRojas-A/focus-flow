@@ -13,17 +13,19 @@ interface ClassDetailsFormProps {
     mode: "new" | "edit";
     setOpenSubjectWizard: React.Dispatch<React.SetStateAction<boolean>>;
     hidden?: boolean;
-    setGetSubjects: React.Dispatch<React.SetStateAction<() => void>>;
+    setGetSubjects: React.Dispatch<React.SetStateAction<() => () => void>>;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Step 1 of class wizard
-export default function ClassDetailsForm({setOpenSubjectWizard, hidden, setGetSubjects}: ClassDetailsFormProps) {
+export default function ClassDetailsForm({setOpenSubjectWizard, hidden, setGetSubjects, setLoading}: ClassDetailsFormProps) {
     const supabase = createClient();
     const [error, setError] = useState<string | null>(null)
     const [subjects, setSubjects] = useState<SubjectRecord[]>([]);
 
     useEffect(() => {
         const getSubjects = async () => {
+            setLoading(true);
             try {
                 const { data, error } = await supabase.from('subjects').select();
                 if (error) throw error
@@ -32,9 +34,12 @@ export default function ClassDetailsForm({setOpenSubjectWizard, hidden, setGetSu
             } catch(error: unknown) {
                 const errorMessage = error as QueryError;
                 setError(errorMessage.message);
+            } finally {
+                setLoading(false);
             }
         }
-        setGetSubjects(getSubjects)
+        setGetSubjects(() => () => getSubjects())
+        getSubjects();
     }, [])
     
     return (
