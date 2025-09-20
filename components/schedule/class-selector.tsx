@@ -1,4 +1,4 @@
-import { ClassForm } from "../class-modal";
+import { ClassForm } from "../class/class-wizard";
 import { Button } from "../ui/button";
 import { useState } from "react";
 
