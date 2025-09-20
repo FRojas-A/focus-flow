@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Modal, ModalBody, ModalHeader } from "../ui/modal";
 import { Database } from "@/database.types";
 import SubjectWizard from "../subject/subject-wizard";
@@ -28,6 +28,7 @@ export function ClassForm({
     const [error, setError] = useState<string | null>(null);
     const [openSubjectWizard, setOpenSubjectWizard] = useState(false);
     const [step, setStep] = useState(1);
+    const formRef = useRef<HTMLFormElement | null>(null);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         console.log("Form submitted");
@@ -53,11 +54,11 @@ export function ClassForm({
                 <div className="flex w-full">
                     {error}
                 </div>
-                <form className="flex flex-col min-h-[300px] h-full relative" onSubmit={handleSubmit}>
+                <form className="flex flex-col min-h-[300px] h-full relative" onSubmit={handleSubmit} ref={formRef}>
                     <ClassDetailsForm mode={mode} setOpenSubjectWizard={setOpenSubjectWizard} hidden={step !== 1} />
                     <ClassTimeForm mode={mode} hidden={step !== 2} />
                     <ClassYearForm mode={mode} hidden={step !== 3} />
-                    <ClassModalFooter mode={mode} setIsOpen={setIsOpen} setStep={setStep} step={step} />
+                    <ClassModalFooter mode={mode} setIsOpen={setIsOpen} setStep={setStep} step={step} formRef={formRef} />
                 </form>
         </ModalBody>
       </Modal>

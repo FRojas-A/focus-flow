@@ -6,15 +6,25 @@ interface ClassWizardFooterProps {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setStep: React.Dispatch<React.SetStateAction<number>>;
     step: number;
+    formRef: React.RefObject<HTMLFormElement | null>;
 }
 
-export default function ClassWizardFooter({mode, setIsOpen, setStep, step}: ClassWizardFooterProps) {
+export default function ClassWizardFooter({mode, setIsOpen, setStep, step, formRef}: ClassWizardFooterProps) {
+
+    const handleNext = () => {
+        const isValid = formRef?.current?.reportValidity?.();
+    
+        if (isValid) {
+          setStep(step + 1);
+        }
+      };
+
     return (
         <div className="flex flex-row justify-end w-full gap-2 p-4 border-t absolute bottom-0">
             <Button type="button" size={"sm"} className="" onClick={() => setStep(prev => prev - 1)} disabled={step === 1}>
                 <ChevronLeftIcon /> Previous
             </Button>
-            <Button type="button" size={"sm"} className="" onClick={() => setStep(prev => prev + 1)} disabled={step === 3}>
+            <Button type="button" size={"sm"} className="" onClick={handleNext} disabled={step === 3}>
                 Next <ChevronRightIcon />
             </Button>
             <Button size={"sm"} type="submit">
