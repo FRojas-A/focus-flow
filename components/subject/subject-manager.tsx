@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Modal, ModalBody, ModalFooter, ModalHeader } from "../ui/modal";
 import { Button } from "../ui/button";
 import SubjectWizard from "./subject-wizard";
+import { LoaderCircle } from "lucide-react";
 
 type SubjectRecord = {
     id?: number;
@@ -17,15 +18,18 @@ export default function SubjectManager() {
     const [open, setOpen] = useState(false);
     const [selectedSubject, setSelectedSubject] = useState<SubjectRecord | null>(null);
     const [openSubjectWizard, setOpenSubjectWizard] = useState(false);
-    const [subjectWizardMode, setSubjectWizardMode] = useState<'new' | 'edit'>("new");
+    const [loading, setLoading] = useState(false);
 
     const fetchSubjects = async () => {
         try {
+            setLoading(true);
             const res = await fetch("/api/subjects");
             const data = await res.json() as { data: SubjectRecord[] };
             setSubjects(data.data);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -41,17 +45,20 @@ export default function SubjectManager() {
                 <ModalHeader>
                     <h1>Subject Manager</h1>
                 </ModalHeader>
-                <ModalBody className="p-4">
-                    {subjects.length > 0 ? (
+                <ModalBody className="p-4 flex flex-col items-center justify-center">
+                    {loading ? (
+                        <div className="flex items-center justify-center h-48">
+                            <LoaderCircle className="animate-spin h-12 w-12" />
+                        </div>
+                    ) : subjects.length > 0 ? (
                         <>
                             {/* Hidden trigger used by all list items */}
                             {openSubjectWizard && <SubjectWizard
                                 setOpen={setOpenSubjectWizard}
-                                mode={subjectWizardMode}
                                 subject={selectedSubject}
                                 onSuccess={fetchSubjects}
                             />}
-                            <ul className="flex flex-col">
+                            <ul className="flex flex-col w-full">
                                 {subjects.map((subject: SubjectRecord) => (
                                     <li
                                         key={subject.id}
@@ -71,13 +78,12 @@ export default function SubjectManager() {
                             </ul>
                         </>
                     ) : (
-                        <p>No subjects found</p>
+                        <p>No subjects found. Create a new one to get started.</p>
                     )}
                 </ModalBody>
                 <ModalFooter className="flex flex-row justify-between">
                     <Button size="sm" onClick={() => setOpen(false)} variant="outline">Close</Button>
                     <Button size="sm" onClick={() => {
-                        setSubjectWizardMode("new");
                         setSelectedSubject(null);
                         setOpenSubjectWizard(true);
                     }}>New Subject</Button>

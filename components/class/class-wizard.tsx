@@ -28,6 +28,7 @@ export function ClassForm({
     const [error, setError] = useState<string | null>(null);
     const [openSubjectWizard, setOpenSubjectWizard] = useState(false);
     const [step, setStep] = useState(1);
+    const [getSubjects, setGetSubjects] = useState<() => void>(() => {});
     const formRef = useRef<HTMLFormElement | null>(null);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,7 +43,7 @@ export function ClassForm({
   return (
     <div className={className} {...props}>
         <Modal className="w-[780px] z-20">
-            {openSubjectWizard && <SubjectWizard setOpen={setOpenSubjectWizard} mode="new" />}
+            {openSubjectWizard && <SubjectWizard setOpen={setOpenSubjectWizard} onSuccess={getSubjects} />}
             <ModalHeader>
                 <div className="flex-col">
                     <div className="text-lg">{mode === "edit" ? "Edit Class" : "New Class"}</div>
@@ -55,7 +56,7 @@ export function ClassForm({
                     {error}
                 </div>
                 <form className="flex flex-col min-h-[300px] h-full relative" onSubmit={handleSubmit} ref={formRef}>
-                    <ClassDetailsForm mode={mode} setOpenSubjectWizard={setOpenSubjectWizard} hidden={step !== 1} />
+                    <ClassDetailsForm mode={mode} setOpenSubjectWizard={setOpenSubjectWizard} hidden={step !== 1} setGetSubjects={setGetSubjects} />
                     <ClassTimeForm mode={mode} hidden={step !== 2} />
                     <ClassYearForm mode={mode} hidden={step !== 3} />
                     <ClassModalFooter mode={mode} setIsOpen={setIsOpen} setStep={setStep} step={step} formRef={formRef} />

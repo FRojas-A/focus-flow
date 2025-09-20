@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, ModalBody, ModalHeader } from "../ui/modal";
 import SubjectForm from "./subject-form";
+import { createClient } from "@/lib/supabase/client";
 
 type SubjectRecord = {
     id?: number;
@@ -10,23 +11,19 @@ type SubjectRecord = {
 
 type SubjectWizardProps = {
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    mode: "new" | "edit";
     subject?: SubjectRecord | null;
     onSuccess?: () => void;
 };
 
-export default function SubjectWizard({ setOpen, mode, subject = null, onSuccess }: SubjectWizardProps) {
+export default function SubjectWizard({ setOpen, subject = null, onSuccess }: SubjectWizardProps) {
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const formData = new FormData(e.currentTarget);
+    const supabase = createClient();
 
-        setIsLoading(true);
-        setError(null);
-
+    // TODO: consolidate into one function?
+    const submitSubject = async (formData: FormData) => {
         try {
             const { name, color } = Object.fromEntries(formData);
             if (name === subject?.name && color === subject?.color) {
@@ -48,13 +45,49 @@ export default function SubjectWizard({ setOpen, mode, subject = null, onSuccess
         } finally {
             setIsLoading(false);
         }
+    }
+
+    // TODO: move to server route
+    const deleteSubject = async () => {
+        if (subject?.id) {
+            try {
+                const { error } = await supabase.from("subjects").delete().eq("id", subject.id);
+                if (error) throw error;
+                setSuccess(true);
+                onSuccess?.();
+                setOpen(false);
+            } catch(error: unknown) {
+                setError(error instanceof Error ? error.message : "An unknown error occurred");
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const formButton = e.nativeEvent;
+        setIsLoading(true);
+        if (formButton instanceof SubmitEvent) {
+            console.log(formButton?.submitter?.id)
+            if (formButton?.submitter?.id === "subjectSubmit") {
+                submitSubject(formData);
+                return;
+            }
+            if (formButton?.submitter?.id === "subjectDelete") {
+                // TODO: ask for confirmation
+                deleteSubject();
+                return;
+            }
+        }
     };
 
     return (
         <div className="z-20 fixed inset-0 flex items-center justify-center">
             <Modal className="w-[500px] z-30">
                 <ModalHeader>
-                    <h1>New Subject</h1>
+                    <h1>{subject ? "Edit Subject" : "New Subject"}</h1>
                 </ModalHeader>
                 <ModalBody>
                     <SubjectForm onClickClose={() => setOpen(false)} onSubmit={handleSubmit} isLoading={isLoading} subject={subject} />

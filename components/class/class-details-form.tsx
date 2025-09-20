@@ -13,16 +13,12 @@ interface ClassDetailsFormProps {
     mode: "new" | "edit";
     setOpenSubjectWizard: React.Dispatch<React.SetStateAction<boolean>>;
     hidden?: boolean;
+    setGetSubjects: React.Dispatch<React.SetStateAction<() => void>>;
 }
 
 // Step 1 of class wizard
-export default function ClassDetailsForm({mode, setOpenSubjectWizard, hidden}: ClassDetailsFormProps) {
+export default function ClassDetailsForm({setOpenSubjectWizard, hidden, setGetSubjects}: ClassDetailsFormProps) {
     const supabase = createClient();
-    const [subject, setSubject] = useState("");
-    const [module, setModule] = useState("");
-    const [room, setRoom] = useState("");
-    const [building, setBuilding] = useState("");
-    const [teacher, setTeacher] = useState(""); 
     const [error, setError] = useState<string | null>(null)
     const [subjects, setSubjects] = useState<SubjectRecord[]>([]);
 
@@ -38,7 +34,7 @@ export default function ClassDetailsForm({mode, setOpenSubjectWizard, hidden}: C
                 setError(errorMessage.message);
             }
         }
-        getSubjects();
+        setGetSubjects(getSubjects)
     }, [])
     
     return (
@@ -50,8 +46,6 @@ export default function ClassDetailsForm({mode, setOpenSubjectWizard, hidden}: C
                     id="subject"
                     name="subjectId"
                     required
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
                     className="border-r-0 rounded-l-sm focus:border z-10 w-full py-1 px-3 font-sans"
                 >
                     {subjects.map((subject) => (
@@ -72,8 +66,6 @@ export default function ClassDetailsForm({mode, setOpenSubjectWizard, hidden}: C
                     type="text"
                     name="module"
                     required
-                    value={module}
-                    onChange={(e) => setModule(e.target.value)}
                 />
             </div>
             <div className="">
@@ -82,8 +74,6 @@ export default function ClassDetailsForm({mode, setOpenSubjectWizard, hidden}: C
                     id="room"
                     type="text"
                     name="room"
-                    value={room}
-                    onChange={(e) => setRoom(e.target.value)}
                 />
             </div>
             <div className="">
@@ -92,8 +82,6 @@ export default function ClassDetailsForm({mode, setOpenSubjectWizard, hidden}: C
                     id="building"
                     type="text"
                     name="building"
-                    value={building}
-                    onChange={(e) => setBuilding(e.target.value)}
                 />
             </div>
             <div className="">
@@ -102,8 +90,6 @@ export default function ClassDetailsForm({mode, setOpenSubjectWizard, hidden}: C
                     id="teacher"
                     type="text"
                     name="teacher"
-                    value={teacher}
-                    onChange={(e) => setTeacher(e.target.value)}
                 />
             </div>
         </div>

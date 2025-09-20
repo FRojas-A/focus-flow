@@ -18,7 +18,6 @@ interface SubjectFormProps {
 }
 
 export default function SubjectForm({ onClickClose, onSubmit, isLoading, subject }: SubjectFormProps) {
-
     const generateRandomColor = () => {
         const letters = '0123456789ABCDEF';
         let color = '#';
@@ -29,8 +28,13 @@ export default function SubjectForm({ onClickClose, onSubmit, isLoading, subject
     }
 
     return (
-        <form className="flex flex-col gap-2" onSubmit={(e) => onSubmit(e)}>
-            <div className="flex flex-row gap-2 p-4">
+        <form className="flex flex-col relative" onSubmit={(e) => onSubmit(e)}>
+            {isLoading && (
+                <div className="z-20 absolute inset-0 flex items-center justify-center bg-gray-500/50">
+                    <LoaderCircle className="animate-spin size-12" />
+                </div>
+            )}
+            <div className="flex flex-row p-4 gap-2 relative">
                 <div className="w-full">
                     <Label htmlFor="name">Name</Label>
                     <Input type="text" id="name" name="name" required defaultValue={subject?.name ?? ""} />
@@ -45,10 +49,12 @@ export default function SubjectForm({ onClickClose, onSubmit, isLoading, subject
             </div>
             <div className="flex justify-between gap-2 p-4 border-t">
                 <Button size="sm" type="button" onClick={onClickClose} variant="outline">Cancel</Button>
-                <Button size="sm" type="submit" disabled={isLoading} className="flex items-center gap-2">
-                    {isLoading && <LoaderCircle className="animate-spin" /> }
-                    Submit
-                </Button>
+                <div className="flex gap-2" >
+                    <Button id="subjectSubmit" size="sm" type="submit" disabled={isLoading} className="flex items-center gap-2">
+                        Submit
+                    </Button>
+                    {subject && <Button id="subjectDelete" size="sm" type="submit" disabled={isLoading} variant="destructive" className="flex items-center gap-2">Delete</Button>}
+                </div>
             </div>
         </form>
     );
