@@ -37,7 +37,7 @@ export default function SubjectManager() {
         <>
         <Button onClick={() => setOpen(true)}>Manage Subjects</Button>
         {open && <div className="z-10 fixed inset-0 flex items-center justify-center">
-            <Modal className="w-[500px] z-20">
+            <Modal className="w-[425px] z-20">
                 <ModalHeader>
                     <h1>Subject Manager</h1>
                 </ModalHeader>
