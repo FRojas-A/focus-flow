@@ -44,8 +44,11 @@ export function ClassForm({
 
   return (
     <div className={className} {...props}>
-        <Modal className="w-[780px] z-20">
+        <Modal className="w-[780px] z-20 relative shadow-lg shadow-black/50">
             {openSubjectWizard && <SubjectWizard setOpen={setOpenSubjectWizard} onSuccess={getSubjects} />}
+            {loading && <div className="z-20 flex absolute top-0 left-0 w-full h-full items-center justify-center bg-gray-500/50 rounded-sm">
+                        <Loader2 className="animate-spin size-12" />
+            </div>}
             <ModalHeader>
                 <div className="flex-col">
                     <div className="text-lg">{mode === "edit" ? "Edit Class" : "New Class"}</div>
@@ -57,10 +60,8 @@ export function ClassForm({
                 <div className="flex w-full">
                     {error}
                 </div>
-                <form className="flex flex-col min-h-[300px] h-full relative" onSubmit={handleSubmit} ref={formRef}>
-                    {loading && <div className="flex absolute top-0 left-0 w-full h-full items-center justify-center bg-gray-500/50">
-                        <Loader2 className="animate-spin size-12" />
-                    </div>}
+                <form className="flex flex-col min-h-[300px] h-full" onSubmit={handleSubmit} ref={formRef}>
+
                     <ClassDetailsForm mode={mode} setOpenSubjectWizard={setOpenSubjectWizard} hidden={step !== 1} setGetSubjects={setGetSubjects} setLoading={setLoading} />
                     <ClassTimeForm mode={mode} hidden={step !== 2} />
                     <ClassYearForm mode={mode} hidden={step !== 3} />
