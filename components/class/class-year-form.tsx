@@ -34,7 +34,7 @@ export default function ClassYearForm({mode, hidden}: ClassYearFormProps) {
                     return (
                         <div key={year.id}>
                             {/* TODO: Display terms under each year */}
-                            <Input value={year.id} type="radio" name="yearId" className="hidden peer" id={String(year.id)} />
+                            <Input value={year.id} type="radio" name="year" className="hidden peer" id={String(year.id)} />
                             <Label htmlFor={String(year.id)} className="inline-flex items-center justify-center w-full border p-3 text-gray-600 peer-checked:border-blue-600 peer-checked:text-white hover:bg-gray-600">
                                 <div className="block">
                                     {year.year_start}

@@ -6,8 +6,14 @@ import { Plus } from "lucide-react";
 import { Database } from "@/database.types";
 import { createClient } from "@/lib/supabase/client";
 import { QueryError } from "@supabase/supabase-js";
+import Select, { StylesConfig } from "react-select";
 
 type SubjectRecord = Database["public"]["Tables"]["subjects"]["Row"];
+type SubjectOption = {
+    label: string;
+    value: number;
+    color: string;
+}
 
 interface ClassDetailsFormProps {
     mode: "new" | "edit";
@@ -21,15 +27,21 @@ interface ClassDetailsFormProps {
 export default function ClassDetailsForm({setOpenSubjectWizard, hidden, setGetSubjects, setLoading}: ClassDetailsFormProps) {
     const supabase = createClient();
     const [error, setError] = useState<string | null>(null)
-    const [subjects, setSubjects] = useState<SubjectRecord[]>([]);
+    const [subjects, setSubjects] = useState<SubjectOption[]>([]);
 
     useEffect(() => {
         const getSubjects = async () => {
             setLoading(true);
             try {
-                const { data, error } = await supabase.from('subjects').select();
+                const { data, error } = await supabase.from('subjects').select().order('name', { ascending: true });
                 if (error) throw error
-                const subjects = data as SubjectRecord[];
+                const subjects = data.map((subject) => ({
+                    
+                    label: subject.name,
+                    value: subject.id,
+                    color: subject.color
+                }));
+
                 setSubjects(subjects);
             } catch(error: unknown) {
                 const errorMessage = error as QueryError;
@@ -41,28 +53,80 @@ export default function ClassDetailsForm({setOpenSubjectWizard, hidden, setGetSu
         setGetSubjects(() => () => getSubjects())
         getSubjects();
     }, [])
+
+    const dot = (color = 'transparent') => ({
+        alignItems: 'center',
+        display: 'flex',
+      
+        ':before': {
+          backgroundColor: color,
+          borderRadius: 10,
+          content: '" "',
+          display: 'block',
+          marginRight: 8,
+          height: 16,
+          width: 16,
+        },
+      });
+    
+    // TODO: revisit font sizing & select styling to use class names instead
+    const colourStyles: StylesConfig<SubjectOption> = {
+        container: (styles) => ({
+            ...styles,
+            width: "100%",
+
+        }),
+        control: (styles) => ({
+            ...styles,
+            minHeight: "36px",
+            height: "36px",
+            borderRight: "none",
+            borderEndEndRadius: "0px",
+            borderTopRightRadius: "0px",
+            borderColor: "hsl(0, 0%, 14.9%)",
+            backgroundColor: "transparent",
+            '&:hover': {
+                borderColor: "hsl(0, 0%, 14.9%)",
+            }
+        }),
+        indicatorSeparator: (styles) => ({
+            ...styles,
+            display: "none",
+        }),
+        menu: (styles) => ({
+            ...styles,
+            backgroundColor: "hsl(0, 0%, 14.9%)",
+            '&:hover': {
+                backgroundColor: "hsl(0, 0%, 14.9%)",
+            }
+        }),
+        option: (styles, { data }) => ({
+            ...styles,
+            ...dot(data.color),
+            backgroundColor: "transparent",
+            '&:hover': {
+                backgroundColor: "gray",
+            }
+
+        }),
+        singleValue: (styles, { data }) => ({
+            ...styles,
+            ...dot(data.color),
+            color: "hsl(0, 0%, 98%)",
+        })
+    }
     
     return (
         <div className={`grid grid-cols-2 gap-y-2 gap-x-4 p-4 ${hidden ? "hidden" : ""}`}>
             <div className="">
                 <Label htmlFor="subject">Subject</Label>
                 <div className="flex flex-row">
-                    <select
-                    id="subject"
-                    name="subjectId"
-                    required
-                    className="border-r-0 rounded-l-sm focus:border z-10 w-full py-1 px-3 font-sans"
-                >
-                    {subjects.map((subject) => (
-                        <option key={subject.id} value={subject.id} >
-                            {subject.name}
-                        </option>
-                    ))}
-                </select>
-                <Button type="button" onClick={() => setOpenSubjectWizard(true)} size="sm" variant="outline" className="h-9 w-9 border-l-0 rounded-l-none">
-                    <Plus />
-                </Button>
-            </div>
+                    {/* TODO: set default value if done loading */}
+                    <Select options={subjects} styles={colourStyles} required name="subject" placeholder="Select a subject" />
+                    <Button type="button" onClick={() => setOpenSubjectWizard(true)} size="sm" variant="outline" className="h-9 w-9 border-l-0 rounded-l-none">
+                        <Plus />
+                    </Button>
+                </div>
             </div>
             <div className="">
                 <Label htmlFor="module">Module</Label>

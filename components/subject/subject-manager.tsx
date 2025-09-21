@@ -33,9 +33,10 @@ export default function SubjectManager() {
         }
     };
 
+    // TODO: move button to outside of component?
     useEffect(() => {
-        fetchSubjects();
-    }, []);
+        if (open) fetchSubjects();
+    }, [open]);
 
     return (
         <>
