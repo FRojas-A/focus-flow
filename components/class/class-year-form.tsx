@@ -27,7 +27,7 @@ export default function ClassYearForm({mode, hidden}: ClassYearFormProps) {
     }, [])
 
     return (
-        <div className={`flex flex-col gap-2 p-4 ${hidden ? "hidden" : ""}`}>
+        <div className={`flex flex-col gap-2 p-4 h-full ${hidden ? "hidden" : ""}`}>
             <h2>Years</h2>
             <ul>
                 {years.map(year => {

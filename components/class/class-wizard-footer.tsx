@@ -20,7 +20,7 @@ export default function ClassWizardFooter({mode, setIsOpen, setStep, step, formR
       };
 
     return (
-        <div className="flex flex-row justify-end w-full gap-2 p-4 border-t absolute bottom-0">
+        <div className="flex flex-row justify-end w-full gap-2 p-4 border-t">
             <Button type="button" size={"sm"} className="" onClick={() => setStep(prev => prev - 1)} disabled={step === 1}>
                 <ChevronLeftIcon /> Previous
             </Button>

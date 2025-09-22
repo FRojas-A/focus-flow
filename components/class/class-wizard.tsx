@@ -37,9 +37,10 @@ export function ClassForm({
         e.preventDefault();
         setLoading(true);
         const formData = new FormData(e.currentTarget);
-        const classInfo = Object.fromEntries(formData.entries().filter(([key]) => key !== "days[]"));
-        const days = formData.getAll("days[]");
-        console.log(classInfo, days);
+        const classInfo = Object.fromEntries(formData.entries());
+
+        console.log(classInfo);
+        setLoading(false);
     }
 
   return (
@@ -56,20 +57,20 @@ export function ClassForm({
                 </div>
                 <div></div>
             </ModalHeader>
-            <ModalBody>
-                <div className="flex w-full">
+            <ModalBody className="min-h-[300px] max-h-[80vh]">
+                {error && <div className="flex w-full">
                     {error}
-                </div>
-                <form className="flex flex-col min-h-[300px] h-full" onSubmit={handleSubmit} ref={formRef}>
+                </div>}
+                <form className="flex flex-col h-[calc(100%-65px)] overflow-y-scroll" onSubmit={handleSubmit} ref={formRef}>
 
                     <ClassDetailsForm mode={mode} setOpenSubjectWizard={setOpenSubjectWizard} hidden={step !== 1} setGetSubjects={setGetSubjects} setLoading={setLoading} />
-                    <ClassTimeForm mode={mode} hidden={step !== 2} />
+                    <ClassTimeForm mode={mode} hidden={step !== 2} formRef={formRef}/>
                     <ClassYearForm mode={mode} hidden={step !== 3} />
                     <ClassModalFooter mode={mode} setIsOpen={setIsOpen} setStep={setStep} step={step} formRef={formRef} />
                 </form>
-        </ModalBody>
-      </Modal>
-      <div onClick={() => setIsOpen(false)} className="fixed min-h-screen h-full w-full bg-gray-500/75" />
+            </ModalBody>
+        </Modal>
+        <div onClick={() => setIsOpen(false)} className="fixed min-h-screen h-full w-full bg-gray-500/75" />
     </div>
   );
 
